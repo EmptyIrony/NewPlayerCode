@@ -1,0 +1,5 @@
+# 允许填写码的毫秒数
+allowed_get_code_time: 10800000
+
+# 允许获取邀请码的权限
+allowed_get_code_permission: "code.get"

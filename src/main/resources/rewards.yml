@@ -1,0 +1,9 @@
+条件1:
+  conditions:
+    - type: permission
+      value: "newplayer.1"
+    - type: played_time
+      # 毫秒数
+      value: "10800000"
+  rewards:
+    - "give %player% diamond"

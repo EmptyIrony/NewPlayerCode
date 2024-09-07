@@ -1,0 +1,8 @@
+no_played_time: "&c你的游玩时间不足"
+no_gen_code_permission: "&c你目前无法创建邀请码"
+generating_code: "&7正在生成邀请码..."
+code_view: "&a你的邀请码是 {0} 点击复制"
+already_exist_parent: "&c你已经有导师了 &e{0}"
+invited: "玩家&e{0}&c使用了你的邀请码"
+success_use_code: "&a成功, 你的导师是 &e{0}"
+no_code_found: "&c邀请码输入错误, 没有找到这个邀请码"

@@ -16,6 +16,7 @@ taboolib {
         install(BUKKIT_ALL)
         install(UNIVERSAL)
         install(DATABASE)
+        install(EXPANSION_REDIS)
     }
     description {
         name = "NewPlayerCode"

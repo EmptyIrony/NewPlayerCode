@@ -1,0 +1,26 @@
+title: "%name% 邀请奖励"
+format:
+  - "         "
+  - " ####### "
+  - "         "
+claimed:
+  material: BOOK
+  name: "任务%name%"
+  lore:
+    - "%description%"
+    - ""
+    - "&e已领取"
+complete:
+  material: BOOK
+  name: "任务%name%"
+  lore:
+    - "%description%"
+    - ""
+    - "&a点击领取"
+incomplete:
+  material: BOOK
+  name: "任务%name%"
+  lore:
+    - "%description%"
+    - ""
+    - "&c未完成"

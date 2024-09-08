@@ -109,6 +109,24 @@ object MySQLHandler {
         }
     }
 
+    val completeTable by lazy {
+        Table("complete_quest_data", host) {
+            add {
+                id()
+            }
+
+            add ("player_name"){
+                type(ColumnTypeSQL.VARCHAR, 64) {
+                    options(ColumnOptionSQL.KEY)
+                }
+            }
+
+            add("completed") {
+                type(ColumnTypeSQL.VARCHAR, 64)
+            }
+        }
+    }
+
     @Awake(LifeCycle.ENABLE)
     fun i() {
         playerInvitesTable.workspace(datasource) {
@@ -124,6 +142,10 @@ object MySQLHandler {
         }.run()
 
         playerPlayedTimeTable.workspace(datasource) {
+            createTable(checkExists = true)
+        }.run()
+
+        completeTable.workspace(datasource) {
             createTable(checkExists = true)
         }.run()
     }

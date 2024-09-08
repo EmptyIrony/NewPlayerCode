@@ -1,0 +1,19 @@
+title: "邀请玩家列表"
+format:
+  - "         "
+  - " ####### "
+  - " ####### "
+  - " ####### "
+  - "         "
+  - "   < >   "
+icon:
+  material: PLAYER_HEAD
+  name: "%name%"
+  lore:
+    - "&a点击查看奖励"
+previous:
+  material: ARROW
+  name: "上一页"
+next:
+  material: ARROW
+  name: "下一页"

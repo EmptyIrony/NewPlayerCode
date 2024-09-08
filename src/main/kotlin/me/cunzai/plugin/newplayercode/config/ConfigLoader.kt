@@ -34,7 +34,8 @@ object ConfigLoader {
 
     class RewardConfig(
         val conditions: List<Condition>,
-        val rewards: List<String>
+        val rewards: List<String>,
+        val description: List<String>,
     )
 
     class Condition(

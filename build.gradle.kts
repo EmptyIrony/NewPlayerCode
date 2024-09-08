@@ -17,6 +17,8 @@ taboolib {
         install(UNIVERSAL)
         install(DATABASE)
         install(EXPANSION_REDIS)
+        install(UI)
+        install(EXPANSION_SUBMIT_CHAIN)
     }
     description {
         name = "NewPlayerCode"

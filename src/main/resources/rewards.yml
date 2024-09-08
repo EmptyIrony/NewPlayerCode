@@ -1,4 +1,6 @@
 条件1:
+  description:
+    - "&7完成任务描述"
   conditions:
     - type: permission
       value: "newplayer.1"

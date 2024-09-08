@@ -1,5 +1,7 @@
 package me.cunzai.plugin.newplayercode.config
 
+import me.cunzai.plugin.newplayercode.data.PlayerData
+import org.bukkit.entity.Player
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
 import taboolib.module.configuration.Config
@@ -27,12 +29,15 @@ object ConfigLoader {
         rewards.clear()
         for (key in rewardsConfig.getKeys(false)) {
             val section = rewardsConfig.getConfigurationSection(key)!!
-            rewards += section.toObject<RewardConfig>(ignoreConstructor = true)
+            val rewardConfig = section.toObject<RewardConfig>(ignoreConstructor = true)
+            rewardConfig.rewardName = key
+            rewards += rewardConfig
         }
     }
 
 
     class RewardConfig(
+        var rewardName: String = "",
         val conditions: List<Condition>,
         val rewards: List<String>,
         val description: List<String>,
@@ -41,6 +46,16 @@ object ConfigLoader {
     class Condition(
         val type: String,
         val value: String,
-    )
+    ) {
+        fun check(player: Player, data: PlayerData): Boolean {
+            return if (type == "permission") {
+                player.hasPermission(value)
+            } else if (type == "played_time") {
+                data.playedTimes >= value.toLong()
+            } else {
+                false
+            }
+        }
+    }
 
 }

@@ -33,16 +33,19 @@ object RedisHandler {
                 sendMessage(message.message)
             }
 
-            PlayerData.cache[message.playerName]?.invites?.putIfAbsent(message.invitedPlayer, HashSet())
+            if (message.isInvited) {
+                PlayerData.cache[message.playerName]?.invites?.putIfAbsent(message.invitedPlayer, HashSet())
+            }
         }
     }
 
-    fun crossServerMessage(sendTo: String, invitedPlayer: String, message: String) {
-        connector.connection().publish("code_cross_server_message", CrossServerMessage(sendTo, invitedPlayer, message))
+    fun crossServerMessage(sendTo: String, invitedPlayer: String, isInvited: Boolean, message: String) {
+        connector.connection().publish("code_cross_server_message", CrossServerMessage(sendTo, isInvited, invitedPlayer, message))
     }
 
     class CrossServerMessage(
         val playerName: String,
+        val isInvited: Boolean,
         val invitedPlayer: String,
         val message: String
     )

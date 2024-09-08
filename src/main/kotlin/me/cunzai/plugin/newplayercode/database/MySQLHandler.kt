@@ -67,7 +67,7 @@ object MySQLHandler {
         }
     }
 
-    private val claimedTable by lazy {
+    val claimedTable by lazy {
         Table("invite_claimed_data", host) {
             add {
                 id()
@@ -208,6 +208,16 @@ object MySQLHandler {
                 data.invites.getOrPut(getString("invited_name")) {
                     HashSet()
                 } += getString("claimed")
+            }
+
+            completeTable.workspace(datasource) {
+                select {
+                    where {
+                        "player_name" eq data.name
+                    }
+                }
+            }.forEach {
+                data.completedQuest += getString("completed")
             }
         }
     }

@@ -95,7 +95,7 @@ object PlayerCodeCommand {
                         data.updateParent()
                         data.locking = false
 
-                        RedisHandler.crossServerMessage(playerName, data.name, console().asLangText("invited", playerName))
+                        RedisHandler.crossServerMessage(playerName, data.name, true, console().asLangText("invited", playerName))
                         sender.sendLang("success_use_code", playerName)
 
                         true

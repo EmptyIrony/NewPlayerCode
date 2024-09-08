@@ -28,6 +28,8 @@ data class PlayerData(val name: String) {
 
     val invites = HashMap<String, HashSet<String>>()
 
+    val completedQuest = HashSet<String>()
+
     fun updatePlayedTimes() {
         MySQLHandler.playerPlayedTimeTable.workspace(
             MySQLHandler.datasource

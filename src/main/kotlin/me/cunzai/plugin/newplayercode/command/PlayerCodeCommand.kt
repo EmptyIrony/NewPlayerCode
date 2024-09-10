@@ -46,12 +46,12 @@ object PlayerCodeCommand {
                     data.updateCode()
                     data.locking = false
 
-                    Components.text(console().asLangText("code_view"))
+                    Components.text(console().asLangText("code_view", code))
                         .clickCopyToClipboard(code)
                         .sendTo(adaptPlayer(sender))
                 }
             } else {
-                Components.text(console().asLangText("code_view"))
+                Components.text(console().asLangText("code_view", dataCode))
                     .clickCopyToClipboard(dataCode)
                     .sendTo(adaptPlayer(sender))
             }

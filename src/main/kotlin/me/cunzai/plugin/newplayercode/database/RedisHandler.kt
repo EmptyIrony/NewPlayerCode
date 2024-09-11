@@ -1,5 +1,6 @@
 package me.cunzai.plugin.newplayercode.database
 
+import com.google.gson.Gson
 import me.cunzai.plugin.newplayercode.data.PlayerData
 import org.bukkit.Bukkit
 import taboolib.common.LifeCycle
@@ -12,6 +13,8 @@ import taboolib.module.configuration.Configuration
 import java.util.HashSet
 
 object RedisHandler {
+
+    private val gson = Gson()
 
     @Config(value = "database.yml")
     lateinit var config: Configuration
@@ -28,7 +31,7 @@ object RedisHandler {
         connector.connection().subscribe(
             "code_cross_server_message"
         ) {
-            val message: CrossServerMessage = get(ignoreConstructor = true)
+            val message: CrossServerMessage = gson.fromJson(message, CrossServerMessage::class.java)
             Bukkit.getPlayerExact(message.playerName)?.apply {
                 sendMessage(message.message)
             }
@@ -40,7 +43,10 @@ object RedisHandler {
     }
 
     fun crossServerMessage(sendTo: String, invitedPlayer: String, isInvited: Boolean, message: String) {
-        connector.connection().publish("code_cross_server_message", CrossServerMessage(sendTo, isInvited, invitedPlayer, message))
+        connector.connection().publish(
+            "code_cross_server_message",
+            gson.toJson(CrossServerMessage(sendTo, isInvited, invitedPlayer, message))
+        )
     }
 
     class CrossServerMessage(

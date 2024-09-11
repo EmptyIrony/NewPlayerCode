@@ -10,7 +10,7 @@ claimed:
     - "%description%"
     - ""
     - "&e已领取"
-complete:
+completed:
   material: BOOK
   name: "任务%name%"
   lore:

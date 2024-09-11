@@ -39,6 +39,7 @@ object ViewUI {
             slots(getSlots('#'))
             onClick { event, element ->
                 event.isCancelled = true
+                QuestUI.open(player, element)
             }
 
             setPreviousPage(getSlots('<').first()) { _, _ ->

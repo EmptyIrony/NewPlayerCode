@@ -4,15 +4,16 @@ import me.cunzai.plugin.newplayercode.config.ConfigLoader
 import me.cunzai.plugin.newplayercode.data.PlayerData
 import me.cunzai.plugin.newplayercode.database.MySQLHandler
 import me.cunzai.plugin.newplayercode.database.RedisHandler
+import me.cunzai.plugin.newplayercode.ui.QuestUI
+import me.cunzai.plugin.newplayercode.ui.ViewUI
 import me.cunzai.plugin.newplayercode.util.genCode
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import taboolib.common.platform.command.CommandBody
-import taboolib.common.platform.command.CommandHeader
-import taboolib.common.platform.command.PermissionDefault
-import taboolib.common.platform.command.subCommand
+import taboolib.common.platform.command.*
 import taboolib.common.platform.function.adaptPlayer
 import taboolib.common.platform.function.console
 import taboolib.common.platform.function.submitAsync
+import taboolib.expansion.createHelper
 import taboolib.module.chat.Components
 import taboolib.module.chat.colored
 import taboolib.module.lang.asLangText
@@ -20,6 +21,13 @@ import taboolib.platform.util.sendLang
 
 @CommandHeader("code", permissionDefault = PermissionDefault.TRUE)
 object PlayerCodeCommand {
+
+    @CommandBody
+    val look = subCommand {
+        execute<Player> { sender, _, _ ->
+            ViewUI.open(sender)
+        }
+    }
 
     @CommandBody
     val show = subCommand {
@@ -85,17 +93,23 @@ object PlayerCodeCommand {
                     val success = MySQLHandler.playerCodeTable.workspace(MySQLHandler.datasource) {
                         select {
                             where {
-                                "invite_code" eq data.code
+                                "invite_code" eq argument
                             }
                         }
                     }.firstOrNull {
                         val playerName = getString("player_name")
 
+                        if (playerName == sender.name) {
+                            sender.sendLang("cant_bound_self")
+                            data.locking = false
+                            return@firstOrNull true
+                        }
+
                         data.parent = playerName
                         data.updateParent()
                         data.locking = false
 
-                        RedisHandler.crossServerMessage(playerName, data.name, true, console().asLangText("invited", playerName))
+                        RedisHandler.crossServerMessage(playerName, data.name, true, console().asLangText("invited", sender.name))
                         sender.sendLang("success_use_code", playerName)
 
                         true
@@ -108,6 +122,25 @@ object PlayerCodeCommand {
 
             }
         }
+    }
+
+    @CommandBody
+    val reload = subCommand {
+        execute<CommandSender> { sender, _, argument ->
+            ConfigLoader.config.reload()
+            ConfigLoader.rewardsConfig.reload()
+            ConfigLoader.i()
+
+            QuestUI.config.reload()
+            ViewUI.config.reload()
+
+            sender.sendMessage("ok")
+        }
+    }
+
+    @CommandBody
+    val main = mainCommand {
+        createHelper(checkPermissions = true)
     }
 
 }

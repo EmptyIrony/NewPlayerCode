@@ -1,6 +1,8 @@
 package me.cunzai.plugin.newplayercode.database
 
 import me.cunzai.plugin.newplayercode.data.PlayerData
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
@@ -148,6 +150,10 @@ object MySQLHandler {
         completeTable.workspace(datasource) {
             createTable(checkExists = true)
         }.run()
+
+        for (player in Bukkit.getOnlinePlayers()) {
+            loadData(player)
+        }
     }
 
     @SubscribeEvent
@@ -155,70 +161,74 @@ object MySQLHandler {
         val player = e.player
 
         submitAsync {
-            val data = PlayerData(player.name)
-            PlayerData.cache[data.name] = data
+            loadData(player)
+        }
+    }
 
-            playerPlayedTimeTable.workspace(datasource) {
-                select {
-                    where {
-                        "player_name" eq data.name
-                    }
-                }
-            }.firstOrNull {
-                data.playedTimes = getLong("played")
-            }
+    private fun loadData(player: Player) {
+        val data = PlayerData(player.name)
+        PlayerData.cache[data.name] = data
 
-            playerCodeTable.workspace(datasource) {
-                select {
-                    where {
-                        "player_name" eq data.name
-                    }
+        playerPlayedTimeTable.workspace(datasource) {
+            select {
+                where {
+                    "player_name" eq data.name
                 }
-            }.firstOrNull {
-                data.code = getString("invite_code")
             }
+        }.firstOrNull {
+            data.playedTimes = getLong("played")
+        }
 
-            playerInvitesTable.workspace(datasource) {
-                select {
-                    where {
-                        "invited_name" eq data.name
-                    }
+        playerCodeTable.workspace(datasource) {
+            select {
+                where {
+                    "player_name" eq data.name
                 }
-            }.firstOrNull {
-                data.parent = getString("player_name")
             }
+        }.firstOrNull {
+            data.code = getString("invite_code")
+        }
 
-            playerInvitesTable.workspace(datasource) {
-                select {
-                    where {
-                        "player_name" eq data.name
-                    }
+        playerInvitesTable.workspace(datasource) {
+            select {
+                where {
+                    "invited_name" eq data.name
                 }
-            }.forEach {
-                data.invites[getString("invited_name")] = HashSet()
             }
+        }.firstOrNull {
+            data.parent = getString("player_name")
+        }
 
-            claimedTable.workspace(datasource) {
-                select {
-                    where {
-                        "player_name" eq data.name
-                    }
+        playerInvitesTable.workspace(datasource) {
+            select {
+                where {
+                    "player_name" eq data.name
                 }
-            }.forEach {
-                data.invites.getOrPut(getString("invited_name")) {
-                    HashSet()
-                } += getString("claimed")
             }
+        }.forEach {
+            data.invites[getString("invited_name")] = HashSet()
+        }
 
-            completeTable.workspace(datasource) {
-                select {
-                    where {
-                        "player_name" eq data.name
-                    }
+        claimedTable.workspace(datasource) {
+            select {
+                where {
+                    "player_name" eq data.name
                 }
-            }.forEach {
-                data.completedQuest += getString("completed")
             }
+        }.forEach {
+            data.invites.getOrPut(getString("invited_name")) {
+                HashSet()
+            } += getString("claimed")
+        }
+
+        completeTable.workspace(datasource) {
+            select {
+                where {
+                    "player_name" eq data.name
+                }
+            }
+        }.forEach {
+            data.completedQuest += getString("completed")
         }
     }
 

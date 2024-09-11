@@ -31,6 +31,7 @@ taboolib {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {

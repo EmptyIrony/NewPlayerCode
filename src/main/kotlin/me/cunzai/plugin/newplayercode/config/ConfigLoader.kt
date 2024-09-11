@@ -1,6 +1,10 @@
 package me.cunzai.plugin.newplayercode.config
 
 import me.cunzai.plugin.newplayercode.data.PlayerData
+import me.cunzai.plugin.newplayercode.database.MySQLHandler
+import net.luckperms.api.LuckPermsProvider
+import net.luckperms.api.node.types.PermissionNode
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
@@ -48,12 +52,44 @@ object ConfigLoader {
         val value: String,
     ) {
         fun check(player: Player, data: PlayerData): Boolean {
-            return if (type == "permission") {
-                player.hasPermission(value)
-            } else if (type == "played_time") {
-                data.playedTimes >= value.toLong()
-            } else {
-                false
+            return when (type) {
+                "permission" -> {
+                    player.hasPermission(value)
+                }
+                "played_time" -> {
+                    data.playedTimes >= value.toLong()
+                }
+                else -> {
+                    false
+                }
+            }
+        }
+
+        fun getValue(player: String): Any {
+            return when (type) {
+                "permission" -> {
+                    LuckPermsProvider.get()
+                        .userManager.let {
+                            it.getUser(player) ?: it.loadUser(
+                                it.lookupUniqueId(player).get()
+                            ).get()
+                        }.nodes.filterIsInstance<PermissionNode>()
+                        .any { it.permission == value }
+                }
+                "played_time" -> {
+                    MySQLHandler.playerPlayedTimeTable.workspace(MySQLHandler.datasource) {
+                        select {
+                            where {
+                                "player_name" eq player
+                            }
+                        }
+                    }.firstOrNull {
+                        getLong("played")
+                    } ?: 0L
+                }
+                else -> {
+                    false
+                }
             }
         }
     }

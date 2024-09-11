@@ -6,26 +6,37 @@ import me.cunzai.plugin.newplayercode.database.MySQLHandler
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import taboolib.common.platform.function.console
+import taboolib.common5.util.replace
 import taboolib.expansion.submitChain
 import taboolib.library.xseries.getItemStack
+import taboolib.module.chat.colored
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.Configuration
 import taboolib.module.configuration.util.getStringColored
+import taboolib.module.lang.asLangText
 import taboolib.module.ui.openMenu
 import taboolib.module.ui.type.Chest
 import taboolib.platform.util.buildItem
+import taboolib.platform.util.replaceLore
+import taboolib.platform.util.replaceName
 import taboolib.platform.util.sendLang
+import kotlin.math.max
 
 object QuestUI {
 
-    @Config("view_ui.yml")
+    @Config("quest_ui.yml")
     lateinit var config: Configuration
 
     fun open(player: Player, name: String) {
         val data = PlayerData.cache[player.name] ?: return
-        val claimed = data.invites.get(name) ?: return
+        val claimed = data.invites[name] ?: return
         submitChain {
-            val completed = async {
+            val (completed, conditionCache) = async {
+                val map = ConfigLoader.rewards.associate {
+                    it.rewardName to it.conditions.map { it.getValue(name) }
+                }
+
                 MySQLHandler.completeTable.workspace(MySQLHandler.datasource) {
                     select {
                         where {
@@ -33,7 +44,7 @@ object QuestUI {
                         }
                     }
                 }.map { getString("completed") }
-                    .toHashSet()
+                    .toHashSet() to map
             }
 
             sync {
@@ -45,17 +56,19 @@ object QuestUI {
                     val buttonSlots = getSlots('#')
 
                     for ((index, reward) in ConfigLoader.rewards.withIndex()) {
+                        val cacheList = conditionCache[reward.rewardName] ?: emptyList()
+
                         if (completed.contains(reward.rewardName)) {
                             if (claimed.contains(reward.rewardName)) {
                                 set(
                                     buttonSlots[index], config.getItemStack("claimed")!!
-                                    .replaceDescription(reward)) {
+                                    .replaceDescription(reward, cacheList)) {
                                     isCancelled = true
                                 }
                             } else {
                                 set(
                                     buttonSlots[index], config.getItemStack("completed")!!
-                                        .replaceDescription(reward)) {
+                                        .replaceDescription(reward, cacheList)) {
                                     isCancelled = true
                                     val success = claimed.add(reward.rewardName)
                                     if (!success) return@set
@@ -87,7 +100,7 @@ object QuestUI {
                         } else {
                             set(
                                 buttonSlots[index], config.getItemStack("incomplete")!!
-                                    .replaceDescription(reward)) {
+                                    .replaceDescription(reward, cacheList)) {
                                 isCancelled = true
                             }
                         }
@@ -97,14 +110,27 @@ object QuestUI {
         }
     }
 
-    private fun ItemStack.replaceDescription(rewardConfig: ConfigLoader.RewardConfig): ItemStack {
+    private fun ItemStack.replaceDescription(rewardConfig: ConfigLoader.RewardConfig, cacheList: List<Any> = emptyList()): ItemStack {
+        val map = HashMap<String, String>()
+
+        map["%name%"] = rewardConfig.rewardName
+        for ((index, condition) in rewardConfig.conditions.withIndex()) {
+            val value = cacheList.getOrNull(index)
+            map["%condition_${index + 1}%"] = if (value is Long) {
+                (max(condition.value.toLongOrNull() ?: 0L, value) / 60 / 60 / 1000L).toString()
+            } else {
+                console().asLangText((value as? Boolean ?: false).toString())
+            }
+        }
+
         return buildItem(this) {
             val index = lore.indexOf("%description%")
             if (index == -1) return@buildItem
 
             lore.removeAt(index)
-            lore.addAll(index, rewardConfig.description)
-        }
+            lore.addAll(index, rewardConfig.description.colored())
+        }.replaceName(map)
+            .replaceLore(map)
     }
 
 }

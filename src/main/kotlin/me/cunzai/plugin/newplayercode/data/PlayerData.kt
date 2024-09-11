@@ -47,7 +47,7 @@ data class PlayerData(val name: String) {
         val s = parent ?: return
         MySQLHandler.playerInvitesTable.workspace(MySQLHandler.datasource) {
             insert("player_name", "invited_name") {
-                value(name, s)
+                value(s, name)
             }
         }.run()
     }

@@ -4,6 +4,7 @@ import me.cunzai.plugin.newplayercode.data.PlayerData
 import me.cunzai.plugin.newplayercode.database.MySQLHandler
 import net.luckperms.api.LuckPermsProvider
 import net.luckperms.api.node.types.PermissionNode
+import net.luckperms.api.query.QueryOptions
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import taboolib.common.LifeCycle
@@ -54,7 +55,12 @@ object ConfigLoader {
         fun check(player: Player, data: PlayerData): Boolean {
             return when (type) {
                 "permission" -> {
-                    player.hasPermission(value)
+                    LuckPermsProvider.get().userManager.let {
+                        it.getUser(player.uniqueId) ?: it.loadUser(player.uniqueId).get()
+                    }.getInheritedGroups(QueryOptions.nonContextual())
+                        .any {
+                            it.name == value
+                        }
                 }
                 "played_time" -> {
                     data.playedTimes >= value.toLong()
@@ -73,8 +79,10 @@ object ConfigLoader {
                             it.getUser(player) ?: it.loadUser(
                                 it.lookupUniqueId(player).get()
                             ).get()
-                        }.nodes.filterIsInstance<PermissionNode>()
-                        .any { it.permission == value }
+                        }.getInheritedGroups(QueryOptions.nonContextual())
+                        .any {
+                            it.name == value
+                        }
                 }
                 "played_time" -> {
                     MySQLHandler.playerPlayedTimeTable.workspace(MySQLHandler.datasource) {

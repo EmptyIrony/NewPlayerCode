@@ -4,9 +4,13 @@ import me.cunzai.plugin.newplayercode.config.ConfigLoader
 import me.cunzai.plugin.newplayercode.data.PlayerData
 import me.cunzai.plugin.newplayercode.database.MySQLHandler
 import me.cunzai.plugin.newplayercode.database.RedisHandler
+import me.cunzai.plugin.newplayercode.ui.LeadersUI
 import me.cunzai.plugin.newplayercode.ui.QuestUI
 import me.cunzai.plugin.newplayercode.ui.ViewUI
 import me.cunzai.plugin.newplayercode.util.genCode
+import me.cunzai.plugin.newplayercode.util.monthlyInvites
+import me.cunzai.plugin.newplayercode.util.totalInvites
+import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import taboolib.common.platform.command.*
@@ -75,7 +79,7 @@ object PlayerCodeCommand {
                     return@execute
                 }
 
-                if (ConfigLoader.allowedUseCodeTime > data.playedTimes) {
+                if (ConfigLoader.allowedUseCodeTime > (data.playedTime)) {
                     sender.sendLang("no_played_time")
                     return@execute
                 }
@@ -121,6 +125,35 @@ object PlayerCodeCommand {
                 }
 
             }
+        }
+    }
+
+    @CommandBody(permissionDefault = PermissionDefault.TRUE)
+    val leader = subCommand {
+        execute<Player> { sender, _, _ ->
+            LeadersUI.open(sender)
+
+            dynamic("type") {
+                execute<Player> { sender, _, argument ->
+                    LeadersUI.open(sender, if (argument == "total") totalInvites else monthlyInvites)
+                }
+            }
+        }
+    }
+
+    @CommandBody(permission = "code.admin")
+    val sendLeaderboardRewards = subCommand {
+        execute<CommandSender> { sender, _, _ ->
+            for ((index, leader) in monthlyInvites.withIndex()) {
+                ConfigLoader.leaderRewards.getOrNull(index)?.rewards?.forEach { reward ->
+                    Bukkit.dispatchCommand(
+                        Bukkit.getConsoleSender(),
+                        reward.replace("%player%", leader.name)
+                    )
+                }
+            }
+
+            sender.sendMessage("&a奖励发放完成".colored())
         }
     }
 

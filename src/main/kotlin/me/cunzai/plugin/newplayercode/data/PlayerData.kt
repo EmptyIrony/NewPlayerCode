@@ -11,14 +11,11 @@ data class PlayerData(val name: String) {
         @Schedule(period = 20 * 30L, async = true)
         fun i() {
             for (data in cache.values) {
-                data.playedTimes += 1000 * 30L
+                data.playedTime += 1000 * 30L
                 data.updatePlayedTimes()
             }
         }
     }
-
-
-    var playedTimes = 0L
 
     var code: String? = null
 
@@ -30,24 +27,13 @@ data class PlayerData(val name: String) {
 
     val completedQuest = HashSet<String>()
 
-    fun updatePlayedTimes() {
-        MySQLHandler.playerPlayedTimeTable.workspace(
-            MySQLHandler.datasource
-        ) {
-            update {
-                set("played", playedTimes)
-                where {
-                    "player_name" eq name
-                }
-            }
-        }.run()
-    }
+    var playedTime = 0L
 
     fun updateParent() {
         val s = parent ?: return
         MySQLHandler.playerInvitesTable.workspace(MySQLHandler.datasource) {
-            insert("player_name", "invited_name") {
-                value(s, name)
+            insert("player_name", "invited_name", "invite_time") {
+                value(s, name, System.currentTimeMillis())
             }
         }.run()
     }
@@ -59,5 +45,16 @@ data class PlayerData(val name: String) {
                 value(name, s)
             }
         }.run()
+    }
+
+    fun updatePlayedTimes() {
+        MySQLHandler.playerPlayedTimeTable.update(
+            MySQLHandler.datasource
+        ) {
+            set("played", playedTime)
+            where {
+                "player_name" eq name
+            }
+        }
     }
 }

@@ -1,0 +1,19 @@
+title: "月度邀请排行榜"
+format:
+    - "#########"
+    - "#   $   #"
+    - "#  $ $  #"
+    - "# $ $ $ #"
+    - "#$ $ $ $#"
+    - "####!####"
+split:
+  material: GRAY_STAINED_GLASS_PANE
+  name: " "
+leader:
+  material: PLAYER_HEAD
+  name: "[%index%] %name%"
+  lore:
+    - "邀请人数: %invited%"
+back:
+  material: CHEST
+  name: "返回"

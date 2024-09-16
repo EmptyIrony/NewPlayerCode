@@ -5,6 +5,7 @@ import me.cunzai.plugin.newplayercode.database.MySQLHandler
 import net.luckperms.api.LuckPermsProvider
 import net.luckperms.api.node.types.PermissionNode
 import net.luckperms.api.query.QueryOptions
+import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import taboolib.common.LifeCycle
@@ -21,10 +22,15 @@ object ConfigLoader {
     @Config("rewards.yml")
     lateinit var rewardsConfig: Configuration
 
+    @Config("leader_rewards.yml")
+    lateinit var leaderRewardsConfig: Configuration
+
     var allowedUseCodeTime = -1L
     lateinit var allowedGetCodePermission: String
 
     val rewards = ArrayList<RewardConfig>()
+
+    val leaderRewards = ArrayList<LeaderRewardData>()
 
     @Awake(LifeCycle.ENABLE)
     fun i() {
@@ -37,6 +43,11 @@ object ConfigLoader {
             val rewardConfig = section.toObject<RewardConfig>(ignoreConstructor = true)
             rewardConfig.rewardName = key
             rewards += rewardConfig
+        }
+
+        leaderRewards.clear()
+        for (rewardName in leaderRewardsConfig.getKeys(false)) {
+            leaderRewards += leaderRewardsConfig.getConfigurationSection(rewardName)!!.toObject<LeaderRewardData>(ignoreConstructor = true)
         }
     }
 
@@ -63,7 +74,7 @@ object ConfigLoader {
                         }
                 }
                 "played_time" -> {
-                    data.playedTimes >= value.toLong()
+                    data.playedTime >= value.toLong()
                 }
                 else -> {
                     false
@@ -85,15 +96,16 @@ object ConfigLoader {
                         }
                 }
                 "played_time" -> {
-                    MySQLHandler.playerPlayedTimeTable.workspace(MySQLHandler.datasource) {
-                        select {
+                    val playedTime = PlayerData.cache[player]?.playedTime ?: run {
+                        MySQLHandler.playerPlayedTimeTable.select(MySQLHandler.datasource) {
                             where {
                                 "player_name" eq player
                             }
-                        }
-                    }.firstOrNull {
-                        getLong("played")
-                    } ?: 0L
+                        }.firstOrNull {
+                            getLong("played")
+                        } ?: 0L
+                    }
+                    playedTime >= value.toLong()
                 }
                 else -> {
                     false
@@ -101,5 +113,9 @@ object ConfigLoader {
             }
         }
     }
+
+    data class LeaderRewardData(
+        val rewards: List<String>
+    )
 
 }

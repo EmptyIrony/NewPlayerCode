@@ -21,7 +21,7 @@ object QuestTracker {
                 val notComplete = reward.conditions.any {
                     !it.check(player, data)
                 }
-                if (!notComplete) continue
+                if (notComplete) continue
 
                 data.completedQuest += reward.rewardName
                 MySQLHandler.completeTable.workspace(MySQLHandler.datasource) {

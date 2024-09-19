@@ -1,5 +1,6 @@
 package me.cunzai.plugin.newplayercode.impact
 
+import me.cunzai.plugin.newplayercode.data.PlayerData
 import me.cunzai.plugin.newplayercode.database.MySQLHandler
 import me.cunzai.plugin.newplayercode.util.monthStartTimestamp
 import me.cunzai.plugin.newplayercode.util.monthlyInvites
@@ -25,6 +26,15 @@ object PlaceholderImpact: PlaceholderExpansion {
 
         val split = args.split("_")
         val operator = split[0]
+
+        if (operator == "code") {
+            return PlayerData.cache[player.name]?.code ?: "暂无"
+        }
+
+        if (operator == "invited") {
+            return (PlayerData.cache[player.name]?.invites?.size ?: 0).toString()
+        }
+
         val cycle = split.getOrNull(1) ?: return "null"
         val index = (split.getOrNull(2)?.toIntOrNull()?.let { it - 1 }) ?: return "null"
 

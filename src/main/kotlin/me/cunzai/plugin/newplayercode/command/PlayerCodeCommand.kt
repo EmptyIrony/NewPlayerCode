@@ -132,11 +132,11 @@ object PlayerCodeCommand {
     val leader = subCommand {
         execute<Player> { sender, _, _ ->
             LeadersUI.open(sender)
+        }
 
-            dynamic("type") {
-                execute<Player> { sender, _, argument ->
-                    LeadersUI.open(sender, if (argument == "total") totalInvites else monthlyInvites)
-                }
+        dynamic("type") {
+            execute<Player> { sender, _, argument ->
+                LeadersUI.open(sender, if (argument == "total") totalInvites else monthlyInvites, argument == "total")
             }
         }
     }

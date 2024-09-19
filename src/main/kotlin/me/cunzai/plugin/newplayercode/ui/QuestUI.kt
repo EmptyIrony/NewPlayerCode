@@ -7,6 +7,7 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import taboolib.common.platform.function.console
+import taboolib.common.platform.function.submit
 import taboolib.expansion.submitChain
 import taboolib.library.xseries.getItemStack
 import taboolib.module.chat.colored
@@ -53,6 +54,19 @@ object QuestUI {
                     map(*format.toTypedArray())
 
                     val buttonSlots = getSlots('#')
+
+                    set('!', ViewUI.config.getItemStack("back")!!) {
+                        isCancelled = true
+                        player.closeInventory()
+                        submit(delay = 1L) {
+                            for (command in ViewUI.config.getStringList("back.commands")) {
+                                Bukkit.dispatchCommand(
+                                    Bukkit.getConsoleSender(),
+                                    command.replace("%player%", player.name),
+                                )
+                            }
+                        }
+                    }
 
                     for ((index, reward) in ConfigLoader.rewards.withIndex()) {
                         val cacheList = conditionCache[reward.rewardName] ?: emptyList()

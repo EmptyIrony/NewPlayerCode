@@ -115,7 +115,8 @@ object ConfigLoader {
     }
 
     data class LeaderRewardData(
-        val rewards: List<String>
+        val rewards: List<String>,
+        val desc: List<String>,
     )
 
 }

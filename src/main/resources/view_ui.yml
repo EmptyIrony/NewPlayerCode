@@ -5,7 +5,7 @@ format:
   - " ####### "
   - " ####### "
   - "         "
-  - "   < >   "
+  - "   <!>   "
 icon:
   material: PLAYER_HEAD
   name: "%name%"
@@ -17,3 +17,8 @@ previous:
 next:
   material: ARROW
   name: "下一页"
+back:
+  material: CHEST
+  name: "返回"
+  commands:
+    - "say %player% 666"

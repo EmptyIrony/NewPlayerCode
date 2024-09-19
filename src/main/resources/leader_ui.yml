@@ -1,4 +1,5 @@
 title: "月度邀请排行榜"
+title_total: "邀请总排行榜"
 format:
     - "#########"
     - "#   $   #"
@@ -17,3 +18,5 @@ leader:
 back:
   material: CHEST
   name: "返回"
+  commands:
+    - "say %player% 666"

@@ -2,7 +2,7 @@ title: "%name% 邀请奖励"
 format:
   - "         "
   - " ####### "
-  - "         "
+  - "    !    "
 claimed:
   material: BOOK
   name: "任务%name%"
@@ -24,3 +24,6 @@ incomplete:
     - "%description%"
     - ""
     - "&c未完成"
+back:
+  material: CHEST
+  name: "返回"

@@ -1,7 +1,9 @@
 package me.cunzai.plugin.newplayercode.ui
 
 import me.cunzai.plugin.newplayercode.data.PlayerData
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import taboolib.common.platform.function.submit
 import taboolib.library.xseries.getItemStack
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.Configuration
@@ -30,7 +32,7 @@ object ViewUI {
                 playerData.invites.keys.toList()
             }
 
-            onGenerate { player, element, index, slot ->
+            onGenerate { _, element, _, _ ->
                 buildItem(config.getItemStack("icon")!!) {
                     skullOwner = element
                 }.replaceName("%name%", element)
@@ -40,6 +42,19 @@ object ViewUI {
             onClick { event, element ->
                 event.isCancelled = true
                 QuestUI.open(player, element)
+            }
+
+            set('!', config.getItemStack("back")!!) {
+                isCancelled = true
+                player.closeInventory()
+                submit(delay = 1L) {
+                    for (command in ViewUI.config.getStringList("back.commands")) {
+                        Bukkit.dispatchCommand(
+                            Bukkit.getConsoleSender(),
+                            command.replace("%player%", player.name),
+                        )
+                    }
+                }
             }
 
             setPreviousPage(getSlots('<').first()) { _, _ ->

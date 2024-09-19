@@ -1,7 +1,10 @@
 package me.cunzai.plugin.newplayercode.ui
 
+import me.cunzai.plugin.newplayercode.config.ConfigLoader
 import me.cunzai.plugin.newplayercode.util.monthlyInvites
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import taboolib.common.platform.function.submit
 import taboolib.library.xseries.getItemStack
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.Configuration
@@ -18,11 +21,11 @@ object LeadersUI {
     lateinit var config: Configuration
 
     fun open(player: Player) {
-        open(player, monthlyInvites)
+        open(player, monthlyInvites, false)
     }
 
-    fun open(player: Player, leaders: List<LeaderboardEntry>) {
-        player.openMenu<Chest>(config.getStringColored("title") ?: "null") {
+    fun open(player: Player, leaders: List<LeaderboardEntry>, total: Boolean) {
+        player.openMenu<Chest>((if (total) config.getStringColored("title_total") else config.getStringColored("title")) ?: "null") {
             map(*config.getStringList("format").toTypedArray())
 
             set('#', config.getItemStack("split")!!) {
@@ -32,6 +35,14 @@ object LeadersUI {
             set('!', config.getItemStack("back")!!) {
                 isCancelled = true
                 player.closeInventory()
+                submit(delay = 1L) {
+                    for (command in ViewUI.config.getStringList("back.commands")) {
+                        Bukkit.dispatchCommand(
+                            Bukkit.getConsoleSender(),
+                            command.replace("%player%", player.name),
+                        )
+                    }
+                }
             }
 
             for ((index, leaderSlot) in getSlots('$').withIndex()) {
@@ -40,8 +51,18 @@ object LeadersUI {
                 val name = entry?.name ?: "虚位以待"
                 val invited = entry?.invited ?: 0
 
+                val rewardsDesc = if (!total) {
+                    ConfigLoader.leaderRewards.getOrNull(index)?.desc ?: emptyList()
+                } else emptyList()
+
                 set(leaderSlot, buildItem(config.getItemStack("leader")!!) {
                     skullOwner = name
+                    val indexOf = lore.indexOf("%desc%")
+                    if (indexOf != -1) {
+                        lore.removeAt(indexOf)
+                        lore += rewardsDesc
+                        colored()
+                    }
                 }.replaceName(
                     mapOf(
                         "%index%" to sortIndex.toString(),

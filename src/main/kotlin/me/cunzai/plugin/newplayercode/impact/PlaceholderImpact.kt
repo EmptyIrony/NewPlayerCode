@@ -32,11 +32,11 @@ object PlaceholderImpact: PlaceholderExpansion {
             return PlayerData.cache[player.name]?.code ?: "暂无"
         }
 
-        if (operator == "invited_total") {
+        if (operator == "invited-total") {
             return (PlayerData.cache[player.name]?.invites?.size ?: 0).toString()
         }
 
-        if (operator == "invited_monthly") {
+        if (operator == "invited-monthly") {
             return (loadMonthlyInvited(player.name)).toString()
         }
 

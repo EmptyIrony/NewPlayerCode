@@ -36,7 +36,7 @@ object LeadersUI {
                 isCancelled = true
                 player.closeInventory()
                 submit(delay = 1L) {
-                    for (command in ViewUI.config.getStringList("back.commands")) {
+                    for (command in config.getStringList("back.commands")) {
                         Bukkit.dispatchCommand(
                             Bukkit.getConsoleSender(),
                             command.replace("%player%", player.name),

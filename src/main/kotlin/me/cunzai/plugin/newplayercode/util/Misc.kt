@@ -42,6 +42,15 @@ fun refreshLeaderboards() {
     }
 }
 
+fun loadMonthlyInvited(name: String): Int {
+    return MySQLHandler.playerInvitesTable.select(MySQLHandler.datasource) {
+        rows("player_name", "COUNT(*) as invited")
+        where {
+            (("player_name" eq name) and ("invite_time" gte monthStartTimestamp))
+        }
+    }.firstOrNull { getInt("invited") } ?: 0
+}
+
 suspend fun loadLeaders(isMonth: Boolean): List<LeaderboardEntry> = withContext(AsyncDispatcher) {
     MySQLHandler.playerInvitesTable.select(MySQLHandler.datasource) {
         rows("player_name", "COUNT(*) as invited")

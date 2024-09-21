@@ -61,7 +61,7 @@ object QuestUI {
                         submit(delay = 1L) {
                             for (command in config.getStringList("back.commands")) {
                                 Bukkit.dispatchCommand(
-                                    Bukkit.getConsoleSender(),
+                                    player,
                                     command.replace("%player%", player.name),
                                 )
                             }

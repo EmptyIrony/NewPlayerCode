@@ -90,11 +90,9 @@ object QuestUI {
 
                                     submitChain {
                                         async {
-                                            MySQLHandler.claimedTable.workspace(MySQLHandler.datasource) {
-                                                insert("player_name", "invited_name", "claimed") {
-                                                    value(player.name, name, reward.rewardName)
-                                                }
-                                            }.run()
+                                            MySQLHandler.claimedTable.insert(MySQLHandler.datasource, "player_name", "invited_name", "claimed") {
+                                                value(player.name, name, reward.rewardName)
+                                            }
                                         }
                                         sync {
                                             for (command in reward.rewards) {

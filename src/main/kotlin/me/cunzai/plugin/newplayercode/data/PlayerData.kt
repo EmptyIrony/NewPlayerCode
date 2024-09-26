@@ -2,11 +2,12 @@ package me.cunzai.plugin.newplayercode.data
 
 import me.cunzai.plugin.newplayercode.database.MySQLHandler
 import taboolib.common.platform.Schedule
+import java.util.concurrent.ConcurrentHashMap
 
 data class PlayerData(val name: String) {
     companion object {
         @JvmStatic
-        val cache = HashMap<String, PlayerData>()
+        val cache = ConcurrentHashMap<String, PlayerData>()
 
         @Schedule(period = 20 * 30L, async = true)
         fun i() {

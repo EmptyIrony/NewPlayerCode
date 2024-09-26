@@ -173,7 +173,6 @@ object MySQLHandler {
 
     private fun loadData(player: Player) {
         val data = PlayerData(player.name)
-        PlayerData.cache[data.name] = data
 
         submitChain {
             coroutineScope {
@@ -227,11 +226,9 @@ object MySQLHandler {
                         }
                     },
                     launch {
-                        claimedTable.workspace(datasource) {
-                            select {
-                                where {
-                                    "player_name" eq data.name
-                                }
+                        claimedTable.select(datasource) {
+                            where {
+                                "player_name" eq data.name
                             }
                         }.forEach {
                             data.invites.getOrPut(getString("invited_name")) {
@@ -253,7 +250,7 @@ object MySQLHandler {
                 )
             }.forEach { it.join() }
 
-
+            PlayerData.cache[data.name] = data
         }
     }
 

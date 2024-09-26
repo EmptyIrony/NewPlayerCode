@@ -224,8 +224,9 @@ object MySQLHandler {
                         }.forEach {
                             data.invites[getString("invited_name")] = HashSet()
                         }
-                    },
-                    launch {
+
+                        // must run after loaded invites
+
                         claimedTable.select(datasource) {
                             where {
                                 "player_name" eq data.name

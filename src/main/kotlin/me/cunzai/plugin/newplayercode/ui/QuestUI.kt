@@ -37,11 +37,9 @@ object QuestUI {
                     it.rewardName to it.conditions.map { it.getValue(name) }
                 }
 
-                MySQLHandler.completeTable.workspace(MySQLHandler.datasource) {
-                    select {
-                        where {
-                            "player_name" eq name
-                        }
+                MySQLHandler.completeTable.select(MySQLHandler.datasource) {
+                    where {
+                        "player_name" eq name
                     }
                 }.map { getString("completed") }
                     .toHashSet() to map

@@ -63,6 +63,7 @@ suspend fun loadLeaders(isMonth: Boolean): List<LeaderboardEntry> = withContext(
         orderBy("invited", Order.Type.DESC)
         limit(10)
     }.map {
+
         LeaderboardEntry(getString("player_name"), getInt("invited"))
     }
 }

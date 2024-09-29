@@ -14,10 +14,7 @@ import taboolib.common.platform.function.submitAsync
 import taboolib.expansion.submitChain
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.Configuration
-import taboolib.module.database.ColumnOptionSQL
-import taboolib.module.database.ColumnTypeSQL
-import taboolib.module.database.Table
-import taboolib.module.database.getHost
+import taboolib.module.database.*
 import java.util.HashSet
 
 object MySQLHandler {
@@ -73,6 +70,12 @@ object MySQLHandler {
 
             add("invite_time") {
                 type(ColumnTypeSQL.BIGINT)
+            }
+
+            add("complete_first_quest") {
+                type(ColumnTypeSQL.INT) {
+                    def(0)
+                }
             }
         }
     }
@@ -141,6 +144,7 @@ object MySQLHandler {
     fun i() {
         playerInvitesTable.workspace(datasource) {
             createTable(checkExists = true)
+            createIndex(Index("idx_complete_first_quest", listOf("complete_first_quest"), checkExists = true))
         }.run()
 
         claimedTable.workspace(datasource) {

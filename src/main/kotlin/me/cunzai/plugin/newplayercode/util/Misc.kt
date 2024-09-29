@@ -42,11 +42,15 @@ fun refreshLeaderboards() {
     }
 }
 
-fun loadMonthlyInvited(name: String): Int {
+fun loadMonthlyInvited(name: String, effective: Boolean): Int {
     return MySQLHandler.playerInvitesTable.select(MySQLHandler.datasource) {
         rows("player_name", "COUNT(*) as invited")
         where {
-            (("player_name" eq name) and ("invite_time" gte monthStartTimestamp))
+            if (effective) {
+                (("player_name" eq name) and ("invite_time" gte monthStartTimestamp))
+            } else {
+                (("player_name" eq name) and ("invite_time" gte monthStartTimestamp)) and ("first_quest_complete" eq 1)
+            }
         }
     }.firstOrNull { getInt("invited") } ?: 0
 }
@@ -56,7 +60,13 @@ suspend fun loadLeaders(isMonth: Boolean): List<LeaderboardEntry> = withContext(
         rows("player_name", "COUNT(*) as invited")
         if (isMonth) {
             where {
-                ("invite_time" gte monthStartTimestamp)
+                ("invite_time" gte monthStartTimestamp) and (
+                    "complete_first_quest" eq 1
+                )
+            }
+        } else {
+            where {
+                ("complete_first_quest" eq 1)
             }
         }
         groupBy("player_name")

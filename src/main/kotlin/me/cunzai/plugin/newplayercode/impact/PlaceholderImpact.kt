@@ -37,7 +37,17 @@ object PlaceholderImpact: PlaceholderExpansion {
         }
 
         if (operator == "invited-monthly") {
-            return (loadMonthlyInvited(player.name)).toString()
+            return (loadMonthlyInvited(player.name, false)).toString()
+        }
+
+        if (operator == "invited-total-effective") {
+            return (PlayerData.cache[player.name]?.invites?.filter {
+                it.value.isNotEmpty()
+            }?.size ?: 0).toString()
+        }
+
+        if (operator == "invited_monthly-effective") {
+            return (loadMonthlyInvited(player.name, true)).toString()
         }
 
         val cycle = split.getOrNull(1) ?: return "null"

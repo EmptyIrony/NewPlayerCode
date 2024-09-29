@@ -16,6 +16,7 @@ object QuestTracker {
     @Schedule(period = 5 * 20L, async = true)
     fun i() {
         for ((data, player) in onlinePlayers.mapNotNull { (PlayerData.cache[it.name] ?: return@mapNotNull null) to it }) {
+            val parent = data.parent ?: continue
             for (reward in ConfigLoader.rewards) {
                 if (data.completedQuest.contains(reward.rewardName)) continue
                 val notComplete = reward.conditions.any {
@@ -29,6 +30,14 @@ object QuestTracker {
                         value(player.name, reward.rewardName)
                     }
                 }.run()
+
+                MySQLHandler.playerInvitesTable.update(MySQLHandler.datasource) {
+                    set("complete_first_quest", 1)
+                    where {
+                        ("player_name" eq parent) and
+                                ("invited_name" eq player.name)
+                    }
+                }
 
                 player.sendLang("complete_quest", reward.rewardName)
                 RedisHandler.crossServerMessage(
